@@ -18,7 +18,6 @@ class AccountServiceTest {
     private AccountService accountService;
     private Account testAccount;
 
-
     @BeforeEach
     void setUp() {
         accountRepository = mock(AccountRepository.class);
@@ -72,7 +71,7 @@ class AccountServiceTest {
         account.setAmount(100L);
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
 
-        accountService.addAmountToAccount(account, 50L);
+        accountService.addMoneyToAccount(account, 50L);
 
         assertEquals(150L, account.getAmount());
         verify(accountRepository).save(account);

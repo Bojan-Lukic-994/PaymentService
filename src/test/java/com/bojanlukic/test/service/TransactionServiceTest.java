@@ -1,22 +1,27 @@
 package com.bojanlukic.test.service;
 
 import com.bojanlukic.test.entity.Account;
+import com.bojanlukic.test.entity.TransactionStatus;
+import com.bojanlukic.test.repository.TransactionRepository;
 import com.bojanlukic.test.service.exception.TransactionNotExecutedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class TransactionServiceTest {
 
     private AccountService accountService;
     private TransactionService transactionService;
+    private TransactionAuditService transactionAuditService;
 
     @BeforeEach
     void setUp() {
         accountService = mock(AccountService.class);
-        transactionService = new TransactionService(accountService);
+        transactionAuditService = mock(TransactionAuditService.class);
+        TransactionRepository transactionRepository = mock(TransactionRepository.class);
+        transactionService = new TransactionService(accountService, transactionAuditService, transactionRepository);
     }
 
     /**
@@ -39,7 +44,9 @@ class TransactionServiceTest {
         transactionService.executeTransaction(1L, 2L, 200L);
 
         verify(accountService).withdrawAmountFromAccount(sender, 200L);
-        verify(accountService).addAmountToAccount(receiver, 200L);
+        verify(accountService).addMoneyToAccount(receiver, 200L);
+        verify(transactionAuditService).recordTransaction(1L, 2L, 200L, TransactionStatus.SUCCESS, "");
+
     }
 
     /**
@@ -53,5 +60,7 @@ class TransactionServiceTest {
         assertThrows(TransactionNotExecutedException.class, () ->
                 transactionService.executeTransaction(1L, 2L, 100L)
         );
+
+        verify(transactionAuditService).recordTransaction(1L, 2L, 100L, TransactionStatus.FAILED, "Execution error");
     }
 }
