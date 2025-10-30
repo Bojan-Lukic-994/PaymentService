@@ -11,14 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final int ACCOUNT_BOTTOM_AMOUNT = 0;
 
     public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
-    //method that returns account by provided id number
-    //if account is not found, exception is thrown
+    /**
+     * Returns account by provided id number
+     * If account is not found, exception is thrown
+     */
     public Account getAccountById(Long id) {
         var optionalAccount = accountRepository.findById(id);
         if (optionalAccount.isEmpty()) {
@@ -28,17 +29,23 @@ public class AccountService {
         return optionalAccount.get();
     }
 
-    //adds provided amount to the selected account
+    /**
+     * adds provided amount of money to the provided account
+     * If account is not found, exception is thrown
+     */
     @Transactional
-    public void addAmountToAccount(Account account, Long addedAmount) {
+    public void addMoneyToAccount(Account account, Long addedAmount) {
         account.setAmount(account.getAmount() + addedAmount);
         accountRepository.save(account);
     }
 
-    //removes the requested amount from the selected account
-    //if the requested amount is more than current amount, the exception is thrown
+    /**
+     * Removes the requested amount of money from the provided account
+     * If the requested amount is larger than the current amount, an exception is thrown
+     */
     @Transactional
     public void withdrawAmountFromAccount(Account account, Long requestedAmount) {
+        int ACCOUNT_BOTTOM_AMOUNT = 0;
         if (account.getAmount() - requestedAmount < ACCOUNT_BOTTOM_AMOUNT) {
             throw new WithdrawalNotSupportedException("Withdrawal failed: The requested amount (" + requestedAmount + ") exceeds available balance (" + account.getAmount() + ") for the account with id number " + account.getId() + ".");
         }
