@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <!-- Create account table -->
+    <changeSet id="1" author="blukic">
+        <createTable tableName="account">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="owner" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Create transactions table -->
+    <changeSet id="2" author="blukic">
+        <createTable tableName="transactions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="sender_account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipient_account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="timestamp" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Add foreign keys -->
+        <addForeignKeyConstraint
+                baseTableName="transactions"
+                baseColumnNames="sender_account_id"
+                constraintName="fk_sender"
+                referencedTableName="account"
+                referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint
+                baseTableName="transactions"
+                baseColumnNames="recipient_account_id"
+                constraintName="fk_recipient"
+                referencedTableName="account"
+                referencedColumnNames="id"/>
+    </changeSet>
+
+    <!-- Insert initial data into account table -->
+    <changeSet id="3" author="blukic">
+        <insert tableName="account">
+            <column name="owner" value="Boki"/>
+            <column name="amount" valueNumeric="1000"/>
+        </insert>
+        <insert tableName="account">
+            <column name="owner" value="John"/>
+            <column name="amount" valueNumeric="55887"/>
+        </insert>
+        <insert tableName="account">
+            <column name="owner" value="Tina"/>
+            <column name="amount" valueNumeric="3364"/>
+        </insert>
+        <insert tableName="account">
+            <column name="owner" value="Tom"/>
+            <column name="amount" valueNumeric="21500"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
